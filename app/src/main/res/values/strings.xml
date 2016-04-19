@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">AGIMA</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_chart">Chart</string>
+    <string name="title_count">Показов рекламы</string>
+
+</resources>
