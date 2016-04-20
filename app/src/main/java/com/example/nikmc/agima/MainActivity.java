@@ -148,8 +148,8 @@ public class MainActivity extends AppCompatActivity {
         protected Void doInBackground(Void... params) {
 
             LogicClass init = new LogicClass();
-            mTable = init.initRandom();
-            mTitleTable = init.initTitle();
+            mTable = init.initRandom();         //создание рандомных чисел
+            mTitleTable = init.initTitle();     //создание рандомных названий
 
             for(int position = 0; position< sCOUNT_TABLE; position++){
                 mModelColumns.add(position, new ModelChart(mTitleTable.get(position), mTable.get(position)));
@@ -161,22 +161,25 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onProgressUpdate(final ModelChart... values) {
             super.onProgressUpdate(values);
-
+                //Добавление в LinearLayout View как столбец
                 final View view  = inflater.inflate(R.layout.item_column, linearLayout, false);
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) getResources().getDimension(R.dimen.column_width), values[0].getCount());
                 view.setLayoutParams(params);// set item content in view
                 view.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        //Отображение информации о стобце при нажатии
                         if(InfoView.getVisibility() == View.GONE){
                             InfoView.setVisibility(View.VISIBLE);
                         }
+                        //При выбора стобца меням его Background, и при выборе другого возвращаем обратно
+                        //не лучшее решение
                         for (int i=0; i < linearLayout.getChildCount(); i++){
                             View child = linearLayout.getChildAt(i);
                             child.setSelected(false);
                         }
                         view.setSelected(true);
-
+                        //Пытался получить координаты видимого столбца в scrollview, но решение не верно
                         final ViewTreeObserver viewTreeObserver = main_layout.getViewTreeObserver();
                         if (viewTreeObserver.isAlive()) {
                             viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -194,6 +197,7 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             });
                         }
+                        //информация о столюце(название и количество просмотров)
                         count.setText(String.valueOf(values[0].getCount()));
                         name.setText(String.valueOf(values[0].getTitle()));
                     }
@@ -206,6 +210,7 @@ public class MainActivity extends AppCompatActivity {
             super.onPostExecute(aVoid);
             if(dialog != null)
                 dialog.dismiss();
+            //Добавление шкалы величин с высотой равной scrollView
             RelativeLayout text = (RelativeLayout)findViewById(R.id.Count);
             text.setVisibility(View.VISIBLE);
             text.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, linearLayout.getLayoutParams().height));

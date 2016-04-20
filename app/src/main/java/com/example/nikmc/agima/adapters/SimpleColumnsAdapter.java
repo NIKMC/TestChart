@@ -18,7 +18,7 @@ import java.util.List;
  * Created by NIKMC on 17.04.2016.
  */
 public class SimpleColumnsAdapter extends BaseAdapter {
-
+    //не используется, нет возможности использовать адаптер в linearlayout
     private List<ModelChart> columns = new ArrayList<>();
     private Context mContext;
     private final static int sMAX = 1000;

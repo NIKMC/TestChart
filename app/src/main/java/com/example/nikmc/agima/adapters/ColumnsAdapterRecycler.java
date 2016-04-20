@@ -17,7 +17,7 @@ import java.util.List;
  * Created by NIKMC on 17.04.2016.
  */
 public class ColumnsAdapterRecycler extends RecyclerView.Adapter<ColumnsAdapterRecycler.ViewHolder>  {
-
+    //Не используется(Была предпринята попытка использования)
     private List<ModelChart> columns;
     private final static int sMAX = 1000;
     private Context mContext;
