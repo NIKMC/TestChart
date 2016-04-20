@@ -15,10 +15,6 @@ public class LogicClass {
     private final static int sCOUNT_TABLE = 20000;
     private final static int sMAX = 1000;
     private final static int sMIN = 0;
-    public int random(){
-        Random rnd = new Random();
-        return rnd.nextInt(1000);
-    }
 
     private static DateFormatSymbols dateFormatSymbols = new DateFormatSymbols(){
 

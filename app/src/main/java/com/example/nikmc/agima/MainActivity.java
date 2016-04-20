@@ -49,10 +49,6 @@ public class MainActivity extends AppCompatActivity {
     private List<Integer> mTable;
     private List<String> mTitleTable;
     private List<ModelChart> mModelColumns = new ArrayList<>();
-    private ColumnsAdapterRecycler adapterRecycler;
-    private View view;
-    private LinearLayout layoutInfo;
-    private RecyclerView recyclerView;
     private LinearLayout InfoView;
     private LinearLayout linearLayout;
     private LayoutInflater inflater;
@@ -96,51 +92,6 @@ public class MainActivity extends AppCompatActivity {
         CreateData data = new CreateData(this);
         data.execute();
 
-      /*  LogicClass init = new LogicClass();
-        mTable = init.initRandom();
-        mTitleTable = init.initTitle();
-
-        for(int position = 0; position< sCOUNT_TABLE; position++){
-            mModelColumns.add(position, new ModelChart(mTitleTable.get(position), mTable.get(position)));
-        }
-*/
-        /*LinearLayout linearLayout = (LinearLayout) findViewById(R.id.LayoutColumn);
-        LayoutInflater inflater = LayoutInflater.from(this);
-        for (final ModelChart modelChart : mModelColumns) {
-            View view  = inflater.inflate(R.layout.item_column, linearLayout, false);
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(20, modelChart.getCount());
-            params.setMargins(0, sMAX-modelChart.getCount(), 0, 0);
-            view.setLayoutParams(params);// set item content in view
-            view.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(InfoView.getVisibility() == View.GONE){
-                        InfoView.setVisibility(View.VISIBLE);
-                    }
-                    Log.d("AGIMA", "text = " + modelChart.getTitle() + ", count = " + modelChart.getCount());
-//                    count.setText(modelChart.getCount());
-//                    name.setText(modelChart.getTitle());
-
-                }
-            });
-            linearLayout.addView(view);
-        }
-*/
-
-
-//        adapterRecycler = new ColumnsAdapterRecycler(this, mModelColumns);
-//        recyclerView.setAdapter(adapterRecycler);
-//        RelativeLayout text = (RelativeLayout)findViewById(R.id.Count);
-//        text.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, recyclerView.getLayoutParams().height));
-//        TextView topLabel = (TextView)findViewById(R.id.topLabel);
-//        TextView centerLabel = (TextView)findViewById(R.id.centerLabel);
-//        TextView bottomLabel = (TextView)findViewById(R.id.bottomLabel);
-//        topLabel.setText(String.valueOf(sMAX));
-//        centerLabel.setText(String.valueOf(sMAX / 2));
-//        bottomLabel.setText(String.valueOf(sMIN + 50));
-//        RelativeLayout.LayoutParams labelparams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.WRAP_CONTENT);
-//        labelparams.setMargins(0,sMAX-50,0,0);
-//        bottomLabel.setLayoutParams(labelparams);
 
     }
 
@@ -213,7 +164,6 @@ public class MainActivity extends AppCompatActivity {
 
                 final View view  = inflater.inflate(R.layout.item_column, linearLayout, false);
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) getResources().getDimension(R.dimen.column_width), values[0].getCount());
-                //params.setMargins(0, sMAX-values[0].getCount(), 0, 0)
                 view.setLayoutParams(params);// set item content in view
                 view.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -271,72 +221,11 @@ public class MainActivity extends AppCompatActivity {
             RelativeLayout.LayoutParams labelBottomparams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.WRAP_CONTENT);
             labelBottomparams.setMargins(0, sMAX - 50, 0, 0);
             bottomLabel.setLayoutParams(labelBottomparams);
-
-
         }
 
 
     }
 
-    public class LoadData extends AsyncTask<ModelChart, ModelChart, Void>{
-
-        private Context mContext;
-        private ProgressDialog dialog;
-        public LoadData(Context context) {
-            mContext = context;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            dialog = new ProgressDialog(mContext);
-            dialog.setMessage("Загрузка...Пожалуйста подождите.");
-            dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            dialog.setCancelable(false);
-            dialog.show();
-
-        }
-
-        @Override
-        protected Void doInBackground(ModelChart... params) {
-
-
-            publishProgress(params[0]);
-            return null;
-        }
-
-        @Override
-        protected void onProgressUpdate(final ModelChart... values) {
-            super.onProgressUpdate(values);
-
-            final View view  = inflater.inflate(R.layout.item_column, linearLayout, false);
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(20, values[0].getCount());
-            //params.setMargins(0, sMAX-values[0].getCount(), 0, 0);
-            view.setLayoutParams(params);// set item content in view
-            view.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(InfoView.getVisibility() == View.GONE){
-                        InfoView.setVisibility(View.VISIBLE);
-                    }
-                    view.setClickable(true);
-                    count.setText(String.valueOf(values[0].getCount()));
-                    name.setText(String.valueOf(values[0].getTitle()));
-                }
-            });
-            linearLayout.addView(view);
-//            }
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            if(dialog != null)
-                dialog.dismiss();
-        }
-
-
-    }
 
 
 }
