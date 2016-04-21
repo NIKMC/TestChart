@@ -9,8 +9,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.nikmc.agima.R;
+import com.example.nikmc.agima.interfaces.RecyclerViewClickListener;
+import com.example.nikmc.agima.model.ItemChart;
 import com.example.nikmc.agima.model.ModelChart;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,12 +21,15 @@ import java.util.List;
  */
 public class ColumnsAdapterRecycler extends RecyclerView.Adapter<ColumnsAdapterRecycler.ViewHolder>  {
     //Не используется(Была предпринята попытка использования)
-    private List<ModelChart> columns;
+    private List<ItemChart> columns = new ArrayList<>();
     private final static int sMAX = 1000;
+    private int saveLastPosition = -1;
     private Context mContext;
-    public ColumnsAdapterRecycler(Context context, List<ModelChart> columns) {
+    private static RecyclerViewClickListener clickRecyclerListener;
+    public ColumnsAdapterRecycler(Context context, List<ModelChart> columns, RecyclerViewClickListener clickRecyclerListener) {
         mContext = context;
-        this.columns = columns;
+        this.columns.addAll(columns);
+        this.clickRecyclerListener = clickRecyclerListener;
     }
 
     @Override
@@ -40,15 +46,20 @@ public class ColumnsAdapterRecycler extends RecyclerView.Adapter<ColumnsAdapterR
 
     @Override
     public void onBindViewHolder(ColumnsAdapterRecycler.ViewHolder holder, int position) {
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(20, columns.get(position).getCount());
-        params.setMargins(0,sMAX-columns.get(position).getCount(),0,0);
+        if(columns.get(position).ismSelected()) {
+            holder.mView.setSelected(true);
+        }
+        else {
+            holder.mView.setSelected(false);
+        }
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int)mContext.getResources().getDimension(R.dimen.column_width), ((ModelChart)columns.get(position)).getCount());
+        params.setMargins(0,sMAX-((ModelChart)columns.get(position)).getCount(),0,0);
         holder.mView.setLayoutParams(params);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         // each data item is just a string in this case
         public View mView;
-        private LayoutInflater layoutInflater;
         public ViewHolder(View v) {
             super(v);
             mView = (View)v.findViewById(R.id.viewLayoutColumn);
@@ -57,16 +68,23 @@ public class ColumnsAdapterRecycler extends RecyclerView.Adapter<ColumnsAdapterR
 
         @Override
         public void onClick(View v) {
-            int clicked = getAdapterPosition();
-            ModelChart modelChart = columns.get(clicked);
-            layoutInflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View infoView = layoutInflater.inflate(R.layout.content_main, null);
-            TextView count = (TextView)infoView.findViewById(R.id.InfoCountColumn);
-            TextView name = (TextView)infoView.findViewById(R.id.TitleColumn);
-            count.setText(modelChart.getCount());
-            name.setText(modelChart.getTitle());
-            if(infoView.getVisibility() == View.GONE){
-                infoView.setVisibility(View.VISIBLE);
+            if(getAdapterPosition() != RecyclerView.NO_POSITION) {
+                int clicked = getAdapterPosition();
+                clickRecyclerListener.ItemViewClick(v, clicked, (ModelChart) columns.get(clicked));
+                saveSelected(clicked, columns.get(clicked));
+            }
+        }
+
+        private void saveSelected(int position, ItemChart itemChart){
+            if(!itemChart.ismSelected()){
+                if (saveLastPosition != -1){
+                    columns.get(saveLastPosition).setmSelected(false);
+                    notifyItemChanged(saveLastPosition);
+                }
+                itemChart.setmSelected(true);
+                saveLastPosition = position;
+                notifyItemChanged(position);
+
             }
         }
     }

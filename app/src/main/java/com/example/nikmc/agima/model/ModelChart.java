@@ -3,7 +3,7 @@ package com.example.nikmc.agima.model;
 /**
  * Created by NIKMC on 15.04.2016.
  */
-public class ModelChart {
+public class ModelChart extends ItemChart {
     private String Title;
     private int Count;
 
