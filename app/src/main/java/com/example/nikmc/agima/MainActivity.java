@@ -22,6 +22,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.ArrayAdapter;
+import android.widget.GridView;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -29,8 +31,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.nikmc.agima.adapters.ColumnsAdapterRecycler;
+import com.example.nikmc.agima.adapters.GridColumnAdapter;
 import com.example.nikmc.agima.adapters.SimpleColumnsAdapter;
 import com.example.nikmc.agima.logic.LogicClass;
+import com.example.nikmc.agima.model.ItemChart;
 import com.example.nikmc.agima.model.ModelChart;
 
 import java.text.DateFormatSymbols;
@@ -57,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
     private View selector;
     private RelativeLayout.LayoutParams selectorparams;
     private LinearLayout main_layout;
+    private GridView gridViewColumn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +87,8 @@ public class MainActivity extends AppCompatActivity {
         inflater = LayoutInflater.from(this);
         selector = (View)findViewById(R.id.selector);
         selectorparams = new RelativeLayout.LayoutParams((int)getResources().getDimension(R.dimen.selector_width), (int)getResources().getDimension(R.dimen.selector_height));
+
+
 /*
         recyclerView = (RecyclerView)findViewById(R.id.recycler_view);
         LinearLayoutManager llm = new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false);
@@ -125,7 +132,78 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public class CreateData extends AsyncTask<Void, ModelChart, Void>{
+    public class CreateData extends AsyncTask<Void, List<ModelChart>, Void> {
+
+        private Context mContext;
+        private ProgressDialog dialog;
+        public CreateData(Context context) {
+            mContext = context;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            dialog = new ProgressDialog(mContext);
+            dialog.setMessage("Загрузка...Пожалуйста подождите.");
+            dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            dialog.setCancelable(false);
+            dialog.show();
+
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            LogicClass init = new LogicClass();
+            mTable = init.initRandom();         //создание рандомных чисел
+            mTitleTable = init.initTitle();     //создание рандомных названий
+
+            for(int position = 0; position< sCOUNT_TABLE; position++){
+                mModelColumns.add(position, new ModelChart(mTitleTable.get(position), mTable.get(position)));
+            }
+            publishProgress(mModelColumns);
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(List<ModelChart>... values) {
+            super.onProgressUpdate(values);
+            //В процессе(Как переиспользовать view для linearlayout без адаптера)
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            //Добавление шкалы величин с высотой равной scrollView
+            //createValueOfScale();
+            if(dialog != null)
+                dialog.dismiss();
+
+        }
+
+        private void createValueOfScale() {
+            RelativeLayout text = (RelativeLayout)findViewById(R.id.Count);
+            text.setVisibility(View.VISIBLE);
+            text.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, gridViewColumn.getLayoutParams().height));
+            TextView topLabel = (TextView)findViewById(R.id.topLabel);
+            TextView centerLabel = (TextView)findViewById(R.id.centerLabel);
+            TextView bottomLabel = (TextView)findViewById(R.id.bottomLabel);
+            topLabel.setText("--" + String.valueOf(sMAX-50));
+            centerLabel.setText("--" + String.valueOf(sMAX / 2));
+            bottomLabel.setText("--" + String.valueOf(sMIN + 50));
+            RelativeLayout.LayoutParams labelTopparams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.WRAP_CONTENT);
+            labelTopparams.setMargins(0, sMIN + 50, 0, 0);
+            topLabel.setLayoutParams(labelTopparams);
+            RelativeLayout.LayoutParams labelBottomparams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.WRAP_CONTENT);
+            labelBottomparams.setMargins(0, sMAX - 50, 0, 0);
+            bottomLabel.setLayoutParams(labelBottomparams);
+
+        }
+
+    }
+
+
+/*    public class CreateData extends AsyncTask<Void, ModelChart, Void>{
 
         private Context mContext;
         private ProgressDialog dialog;
@@ -229,7 +307,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-    }
+    }*/
 
 
 
