@@ -12,9 +12,13 @@ import java.util.Random;
  */
 public class LogicClass {
 
-    private final static int sCOUNT_TABLE = 20000;
+    private static int sCOUNT_TABLE = -1;
     private final static int sMAX = 1000;
     private final static int sMIN = 0;
+
+    public LogicClass(int count) {
+        sCOUNT_TABLE = count;
+    }
 
     private static DateFormatSymbols dateFormatSymbols = new DateFormatSymbols(){
 
@@ -25,6 +29,7 @@ public class LogicClass {
         }
 
     };
+
 
     public List<String> initTitle(){
         List<String> title = new ArrayList<>();

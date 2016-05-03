@@ -3,7 +3,6 @@ package com.example.nikmc.agima;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -11,10 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -106,7 +102,7 @@ public class RecyclerChartActivity extends AppCompatActivity implements Recycler
         @Override
         protected Void doInBackground(Void... params) {
 
-            LogicClass init = new LogicClass();
+            LogicClass init = new LogicClass(sCOUNT_TABLE);
             mTable = init.initRandom();         //создание рандомных чисел
             mTitleTable = init.initTitle();     //создание рандомных названий
 

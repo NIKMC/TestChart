@@ -1,61 +1,33 @@
 package com.example.nikmc.agima;
 
-import android.app.ActionBar;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.view.animation.RotateAnimation;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.Gallery;
-import android.widget.GridView;
-import android.widget.HorizontalScrollView;
+import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.nikmc.agima.adapters.ColumnsAdapterRecycler;
-import com.example.nikmc.agima.adapters.GridColumnAdapter;
-import com.example.nikmc.agima.adapters.GridViewColumnAdapter;
-import com.example.nikmc.agima.adapters.SimpleColumnsAdapter;
 import com.example.nikmc.agima.logic.LogicClass;
-import com.example.nikmc.agima.model.ItemChart;
+import com.example.nikmc.agima.model.ExtHScrollView;
 import com.example.nikmc.agima.model.ModelChart;
 
-import java.text.DateFormatSymbols;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
-import java.util.Random;
-import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final static int sCOUNT_TABLE = 20000;
+    private final static int sCOUNT_TABLE = 200;
     private final static int sMAX = 1000;
     private final static int sMIN = 0;
     private final static int END = 40;
@@ -74,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private RelativeLayout.LayoutParams selectorparams;
     private LinearLayout main_layout;
 //    private ListView listViewColumn;
-    private HorizontalScrollView horizontalScrollViewColumn;
+    private ExtHScrollView horizontalScrollViewColumn;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,71 +72,13 @@ public class MainActivity extends AppCompatActivity {
         selector = (View)findViewById(R.id.selector);
         selectorparams = new RelativeLayout.LayoutParams((int)getResources().getDimension(R.dimen.selector_width), (int)getResources().getDimension(R.dimen.selector_height));
 //        listViewColumn = (ListView) findViewById(R.id.listView);
-        horizontalScrollViewColumn = (HorizontalScrollView)findViewById(R.id.horizontalScrollViewColumn);
-        Button delete = (Button)findViewById(R.id.btn);
-        Button add = (Button)findViewById(R.id.add);
-        delete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        horizontalScrollViewColumn = (ExtHScrollView)findViewById(R.id.horizontalScrollViewColumn);
 
-                if(countViewFirst < sCOUNT_TABLE) {
-                    countViewFirst++;
 
-//                Log.d("AGIMA", "getChildCount()" + linearLayout.getChildCount());
-                    linearLayout.getChildCount();
-//                Log.d("AGIMA", "getChildAt(0)" + linearLayout.getChildAt(0));
-                    linearLayout.getChildAt(0);
-                    Log.d("AGIMA", "delete first" + mModelColumns.get(countViewLast).getTitle());
-
-                    linearLayout.removeViewAt(0);
-                    Log.d("AGIMA", "mModelColumns.get(countView).getCount()" + mModelColumns.get(countViewLast).getCount());
-                    final View view = inflater.inflate(R.layout.item_column, linearLayout, false);
-                    Log.d("AGIMA", "getTitle()" + mModelColumns.get(countViewLast).getTitle());
-
-                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) getResources().getDimension(R.dimen.column_width), mModelColumns.get(countViewLast).getCount());
-                    view.setLayoutParams(params);// set item content in view
-                    linearLayout.addView(view);
-                    countViewLast++;
-                } else {
-                    Toast.makeText(MainActivity.this,"Nope",Toast.LENGTH_SHORT).show();
-                }
-
-            }
-        });
-        add.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(countViewFirst > -1) {
-                    linearLayout.getChildCount();
-                    Log.d("AGIMA", "getChildAt(0)" + linearLayout.getChildAt(0));
-                    final View view = inflater.inflate(R.layout.item_column, linearLayout, false);
-                    Log.d("AGIMA", "getTitle() delete last" + mModelColumns.get(countViewLast).getTitle());
-                    linearLayout.removeViewAt(linearLayout.getChildCount() - 1);
-                    Log.d("AGIMA", "mModelColumns.get(countView).getCount()" + mModelColumns.get(countViewFirst).getCount());
-                    countViewLast--;
-
-                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) getResources().getDimension(R.dimen.column_width), mModelColumns.get(countViewFirst).getCount());
-                    view.setLayoutParams(params);// set item content in view
-                    linearLayout.addView(view, 0);
-                    Log.d("AGIMA", "getTitle() add first" + mModelColumns.get(countViewFirst).getTitle());
-                    countViewFirst--;
-                } else {
-                    Toast.makeText(MainActivity.this,"Nope",Toast.LENGTH_SHORT).show();
-                }
-
-            }
-        });
-/*
-        recyclerView = (RecyclerView)findViewById(R.id.recycler_view);
-        LinearLayoutManager llm = new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false);
-        ViewGroup.LayoutParams params=recyclerView.getLayoutParams();
-        params.height=sMAX;
-        recyclerView.setLayoutParams(params);recyclerView.setLayoutManager(llm);
-*/
         CreateData data = new CreateData(this);
         data.execute();
 
-        horizontalScrollViewColumn.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
+        /*horizontalScrollViewColumn.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
             @Override
             public void onScrollChanged() {
                 int scrollX = horizontalScrollViewColumn.getScrollX(); //for horizontalScrollView
@@ -178,19 +92,122 @@ public class MainActivity extends AppCompatActivity {
                                         horizontalScrollViewColumn.getWidth() + ", " +
 
                                         horizontalScrollViewColumn.getScaleX());
-                        Log.d("AGIMA", "getChildCount" +
-                                ( (LinearLayout)horizontalScrollViewColumn.getChildAt(0)).getChildAt(linearLayout.getChildCount()-1).getScrollBarFadeDuration() + ", " +
-                                ( (LinearLayout)horizontalScrollViewColumn.getChildAt(0)).getChildAt(linearLayout.getChildCount()-1).getScrollBarSize() + ", " +
-                                ( (LinearLayout)horizontalScrollViewColumn.getChildAt(0)).getChildAt(linearLayout.getChildCount()-1).getLeft());
 
 
 
+            }
+        });*/
+        horizontalScrollViewColumn.setOnScrollChanged(new ExtHScrollView.ScrollViewListener() {
+            @Override
+            public void onScrollChanged(ExtHScrollView scrollView, int l, int t, int oldl, int oldt) {
+                if (l + scrollView.getExtentHorizontal() >= scrollView
+                        .getChildWidth() - ((LinearLayout)scrollView.getChildAt(0)).getChildAt(0).getWidth()) {
+                    horizontalScrollViewColumn.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            AddEnd();
+                        }
+                    });
+                } else if (l + scrollView.getExtentHorizontal() <= scrollView.getExtentHorizontal()){
+                    horizontalScrollViewColumn.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            AddFirst();
+                        }
+                    });
+                }
             }
         });
 
     }
 
-    @Override
+    private void AddEnd() {
+        if (countViewLast < sCOUNT_TABLE) {
+            int step = 0;
+            if (countViewLast + STEP <= sCOUNT_TABLE - 1) {
+                for(int position = countViewLast; position < countViewLast + STEP; position++){
+                    countViewFirst++;
+                    linearLayout.removeViewAt(0);
+                    Log.d("AGIMA", "mModelColumns.get(countView).getCount()" + mModelColumns.get(position).getCount());
+                    final View view = inflater.inflate(R.layout.item_column, linearLayout, false);
+                    Log.d("AGIMA", "getTitle()" + mModelColumns.get(position).getTitle());
+
+                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) getResources().getDimension(R.dimen.column_width),
+                            mModelColumns.get(position).getCount());
+                    view.setLayoutParams(params);// set item content in view
+                    view.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
+                        }
+                    });
+                    linearLayout.addView(view);
+                }
+                countViewLast += STEP;
+            } else {
+                step = (sCOUNT_TABLE - 1) - countViewLast;
+                for(int position = countViewLast; position < countViewLast + step; position++){
+                    countViewFirst++;
+                    linearLayout.removeViewAt(0);
+                    Log.d("AGIMA", "mModelColumns.get(countView).getCount()" + mModelColumns.get(position).getCount());
+                    final View view = inflater.inflate(R.layout.item_column, linearLayout, false);
+                    Log.d("AGIMA", "getTitle()" + mModelColumns.get(position).getTitle());
+
+                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) getResources().getDimension(R.dimen.column_width),
+                            mModelColumns.get(position).getCount());
+                    view.setLayoutParams(params);// set item content in view
+                    linearLayout.addView(view);
+                }
+                countViewLast += step;
+            }
+        } else {
+            Toast.makeText(MainActivity.this,"Nope",Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void AddFirst() {
+        if (countViewFirst > -1) {
+            int step = 0;
+            if (countViewFirst - STEP >= -1) {
+                for (int position = countViewFirst; position > countViewFirst - STEP; position--) {
+                    linearLayout.removeViewAt(linearLayout.getChildCount() - 1);
+                    Log.d("AGIMA", "mModelColumns.get(countView).getCount()" + mModelColumns.get(position).getCount());
+                    Log.d("AGIMA", "mModelColumns.get(countView).getCount()" + mModelColumns.get(position).getCount());
+                    final View view = inflater.inflate(R.layout.item_column, linearLayout, false);
+                    Log.d("AGIMA", "getTitle()" + mModelColumns.get(position).getTitle());
+
+                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) getResources().getDimension(R.dimen.column_width),
+                            mModelColumns.get(position).getCount());
+                    view.setLayoutParams(params);// set item content in view
+                    linearLayout.addView(view, 0);
+                    Log.d("AGIMA", "getTitle() add first" + mModelColumns.get(countViewFirst).getTitle());
+                }
+                countViewLast -= STEP;
+                countViewFirst -= STEP;
+            } else {
+                step = countViewFirst + 1;
+                for (int position = countViewFirst; position > -1; position--) {
+                    linearLayout.removeViewAt(linearLayout.getChildCount() - 1);
+                    Log.d("AGIMA", "mModelColumns.get(countView).getCount()" + mModelColumns.get(position).getCount());
+                    Log.d("AGIMA", "mModelColumns.get(countView).getCount()" + mModelColumns.get(position).getCount());
+                    final View view = inflater.inflate(R.layout.item_column, linearLayout, false);
+                    Log.d("AGIMA", "getTitle()" + mModelColumns.get(position).getTitle());
+
+                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) getResources().getDimension(R.dimen.column_width),
+                            mModelColumns.get(position).getCount());
+                    view.setLayoutParams(params);// set item content in view
+                    linearLayout.addView(view, 0);
+                    Log.d("AGIMA", "getTitle() add first" + mModelColumns.get(countViewFirst).getTitle());
+                }
+                countViewLast -= step;
+                countViewLast -= step;
+            }
+        } else {
+            Toast.makeText(MainActivity.this, "Nope", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+        @Override
     protected void onResume() {
         super.onResume();
 
@@ -242,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... params) {
 
-            LogicClass init = new LogicClass();
+            LogicClass init = new LogicClass(sCOUNT_TABLE);
             mTable = init.initRandom();         //создание рандомных чисел
             mTitleTable = init.initTitle();     //создание рандомных названий
 
@@ -257,25 +274,15 @@ public class MainActivity extends AppCompatActivity {
         protected void onProgressUpdate(List<ModelChart>... values) {
             super.onProgressUpdate(values);
             //В процессе(Как переиспользовать view для linearlayout без адаптера)
-            /*SimpleColumnsAdapter adapter = new SimpleColumnsAdapter(mContext, values[0]);
-//            RotateAnimation rotate= (RotateAnimation) AnimationUtils.loadAnimation(mContext, R.anim.listview_rotate);
 
-            RotateAnimation rotate = new RotateAnimation(0, -90,
-                    Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
-                    0.5f);
-
-            rotate.setDuration(0);
-            rotate.setRepeatCount(Animation.ABSOLUTE);
-            //yourView.setAnimation(rotate);
-            listViewColumn.setAnimation(rotate);
-            listViewColumn.setAdapter(adapter);*/
             for (int i=0; i<END; i++){
-                countViewLast += i;
+                countViewLast++;
                 final View view  = inflater.inflate(R.layout.item_column, linearLayout, false);
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) getResources().getDimension(R.dimen.column_width), values[0].get(i).getCount());
                 view.setLayoutParams(params);// set item content in view
                 linearLayout.addView(view);
             }
+            createValueOfScale();
 
 
         }
