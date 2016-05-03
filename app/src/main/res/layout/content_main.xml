@@ -106,11 +106,22 @@
                 android:layout_alignParentBottom="true"/>
         </RelativeLayout>
 
+        <!--<ListView
+            android:id="@+id/listView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+-->
        <HorizontalScrollView
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:id="@+id/horizontalScrollViewColumn" >
-      <LinearLayout
+
+         <!--  <Gallery
+               android:id="@+id/gridView"
+               android:layout_width="fill_parent"
+               android:layout_height="wrap_content"/>-->
+
+            <LinearLayout
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:orientation="horizontal"
@@ -123,5 +134,12 @@
           android:background="@drawable/column"/>-->
       </HorizontalScrollView>
     </RelativeLayout>
-
+    <Button
+        android:id="@+id/btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <Button
+        android:id="@+id/add"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 </LinearLayout>

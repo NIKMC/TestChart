@@ -22,16 +22,24 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.RotateAnimation;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.Gallery;
 import android.widget.GridView;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.nikmc.agima.adapters.ColumnsAdapterRecycler;
 import com.example.nikmc.agima.adapters.GridColumnAdapter;
+import com.example.nikmc.agima.adapters.GridViewColumnAdapter;
 import com.example.nikmc.agima.adapters.SimpleColumnsAdapter;
 import com.example.nikmc.agima.logic.LogicClass;
 import com.example.nikmc.agima.model.ItemChart;
@@ -50,6 +58,10 @@ public class MainActivity extends AppCompatActivity {
     private final static int sCOUNT_TABLE = 20000;
     private final static int sMAX = 1000;
     private final static int sMIN = 0;
+    private final static int END = 40;
+    private final static int STEP = 20;
+    private int countViewLast = -1;
+    private int countViewFirst = -1;
     private List<Integer> mTable;
     private List<String> mTitleTable;
     private List<ModelChart> mModelColumns = new ArrayList<>();
@@ -61,8 +73,8 @@ public class MainActivity extends AppCompatActivity {
     private View selector;
     private RelativeLayout.LayoutParams selectorparams;
     private LinearLayout main_layout;
-    private GridView gridViewColumn;
-
+//    private ListView listViewColumn;
+    private HorizontalScrollView horizontalScrollViewColumn;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,8 +99,61 @@ public class MainActivity extends AppCompatActivity {
         inflater = LayoutInflater.from(this);
         selector = (View)findViewById(R.id.selector);
         selectorparams = new RelativeLayout.LayoutParams((int)getResources().getDimension(R.dimen.selector_width), (int)getResources().getDimension(R.dimen.selector_height));
+//        listViewColumn = (ListView) findViewById(R.id.listView);
+        horizontalScrollViewColumn = (HorizontalScrollView)findViewById(R.id.horizontalScrollViewColumn);
+        Button delete = (Button)findViewById(R.id.btn);
+        Button add = (Button)findViewById(R.id.add);
+        delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
+                if(countViewFirst < sCOUNT_TABLE) {
+                    countViewFirst++;
 
+//                Log.d("AGIMA", "getChildCount()" + linearLayout.getChildCount());
+                    linearLayout.getChildCount();
+//                Log.d("AGIMA", "getChildAt(0)" + linearLayout.getChildAt(0));
+                    linearLayout.getChildAt(0);
+                    Log.d("AGIMA", "delete first" + mModelColumns.get(countViewLast).getTitle());
+
+                    linearLayout.removeViewAt(0);
+                    Log.d("AGIMA", "mModelColumns.get(countView).getCount()" + mModelColumns.get(countViewLast).getCount());
+                    final View view = inflater.inflate(R.layout.item_column, linearLayout, false);
+                    Log.d("AGIMA", "getTitle()" + mModelColumns.get(countViewLast).getTitle());
+
+                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) getResources().getDimension(R.dimen.column_width), mModelColumns.get(countViewLast).getCount());
+                    view.setLayoutParams(params);// set item content in view
+                    linearLayout.addView(view);
+                    countViewLast++;
+                } else {
+                    Toast.makeText(MainActivity.this,"Nope",Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
+        add.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(countViewFirst > -1) {
+                    linearLayout.getChildCount();
+                    Log.d("AGIMA", "getChildAt(0)" + linearLayout.getChildAt(0));
+                    final View view = inflater.inflate(R.layout.item_column, linearLayout, false);
+                    Log.d("AGIMA", "getTitle() delete last" + mModelColumns.get(countViewLast).getTitle());
+                    linearLayout.removeViewAt(linearLayout.getChildCount() - 1);
+                    Log.d("AGIMA", "mModelColumns.get(countView).getCount()" + mModelColumns.get(countViewFirst).getCount());
+                    countViewLast--;
+
+                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) getResources().getDimension(R.dimen.column_width), mModelColumns.get(countViewFirst).getCount());
+                    view.setLayoutParams(params);// set item content in view
+                    linearLayout.addView(view, 0);
+                    Log.d("AGIMA", "getTitle() add first" + mModelColumns.get(countViewFirst).getTitle());
+                    countViewFirst--;
+                } else {
+                    Toast.makeText(MainActivity.this,"Nope",Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
 /*
         recyclerView = (RecyclerView)findViewById(R.id.recycler_view);
         LinearLayoutManager llm = new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false);
@@ -99,6 +164,29 @@ public class MainActivity extends AppCompatActivity {
         CreateData data = new CreateData(this);
         data.execute();
 
+        horizontalScrollViewColumn.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
+            @Override
+            public void onScrollChanged() {
+                int scrollX = horizontalScrollViewColumn.getScrollX(); //for horizontalScrollView
+//                linearLayout.getC
+               // Log.d("AGIMA", "getChildCount" + linearLayout.getChildCount() );
+            
+                        Log.d("AGIMA", "scrollView" +
+                                horizontalScrollViewColumn.getX() + ", " +
+                                horizontalScrollViewColumn.getY() + ", " +
+                                horizontalScrollViewColumn.getScrollX() + ", " +
+                                        horizontalScrollViewColumn.getWidth() + ", " +
+
+                                        horizontalScrollViewColumn.getScaleX());
+                        Log.d("AGIMA", "getChildCount" +
+                                ( (LinearLayout)horizontalScrollViewColumn.getChildAt(0)).getChildAt(linearLayout.getChildCount()-1).getScrollBarFadeDuration() + ", " +
+                                ( (LinearLayout)horizontalScrollViewColumn.getChildAt(0)).getChildAt(linearLayout.getChildCount()-1).getScrollBarSize() + ", " +
+                                ( (LinearLayout)horizontalScrollViewColumn.getChildAt(0)).getChildAt(linearLayout.getChildCount()-1).getLeft());
+
+
+
+            }
+        });
 
     }
 
@@ -169,6 +257,27 @@ public class MainActivity extends AppCompatActivity {
         protected void onProgressUpdate(List<ModelChart>... values) {
             super.onProgressUpdate(values);
             //В процессе(Как переиспользовать view для linearlayout без адаптера)
+            /*SimpleColumnsAdapter adapter = new SimpleColumnsAdapter(mContext, values[0]);
+//            RotateAnimation rotate= (RotateAnimation) AnimationUtils.loadAnimation(mContext, R.anim.listview_rotate);
+
+            RotateAnimation rotate = new RotateAnimation(0, -90,
+                    Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
+                    0.5f);
+
+            rotate.setDuration(0);
+            rotate.setRepeatCount(Animation.ABSOLUTE);
+            //yourView.setAnimation(rotate);
+            listViewColumn.setAnimation(rotate);
+            listViewColumn.setAdapter(adapter);*/
+            for (int i=0; i<END; i++){
+                countViewLast += i;
+                final View view  = inflater.inflate(R.layout.item_column, linearLayout, false);
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) getResources().getDimension(R.dimen.column_width), values[0].get(i).getCount());
+                view.setLayoutParams(params);// set item content in view
+                linearLayout.addView(view);
+            }
+
+
         }
 
         @Override
@@ -184,7 +293,7 @@ public class MainActivity extends AppCompatActivity {
         private void createValueOfScale() {
             RelativeLayout text = (RelativeLayout)findViewById(R.id.Count);
             text.setVisibility(View.VISIBLE);
-            text.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, gridViewColumn.getLayoutParams().height));
+            text.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, horizontalScrollViewColumn.getLayoutParams().height));
             TextView topLabel = (TextView)findViewById(R.id.topLabel);
             TextView centerLabel = (TextView)findViewById(R.id.centerLabel);
             TextView bottomLabel = (TextView)findViewById(R.id.bottomLabel);

@@ -40,7 +40,7 @@ public class LaunchActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Toast.makeText(LaunchActivity.this,"Not good work(In the process)", Toast.LENGTH_SHORT).show();
-                //startActivity(new Intent(LaunchActivity.this, MainActivity.class));
+                startActivity(new Intent(LaunchActivity.this, MainActivity.class));
             }
         });
     }
