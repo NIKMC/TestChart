@@ -27,13 +27,14 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final static int sCOUNT_TABLE = 200;
+    private final static int sCOUNT_TABLE = 20000;
     private final static int sMAX = 1000;
     private final static int sMIN = 0;
     private final static int END = 40;
     private final static int STEP = 20;
     private int countViewLast = -1;
     private int countViewFirst = -1;
+    private int selectedView = -1;
     private List<Integer> mTable;
     private List<String> mTitleTable;
     private List<ModelChart> mModelColumns = new ArrayList<>();
@@ -73,7 +74,6 @@ public class MainActivity extends AppCompatActivity {
         selectorparams = new RelativeLayout.LayoutParams((int)getResources().getDimension(R.dimen.selector_width), (int)getResources().getDimension(R.dimen.selector_height));
 //        listViewColumn = (ListView) findViewById(R.id.listView);
         horizontalScrollViewColumn = (ExtHScrollView)findViewById(R.id.horizontalScrollViewColumn);
-
 
         CreateData data = new CreateData(this);
         data.execute();
@@ -135,10 +135,16 @@ public class MainActivity extends AppCompatActivity {
                     LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) getResources().getDimension(R.dimen.column_width),
                             mModelColumns.get(position).getCount());
                     view.setLayoutParams(params);// set item content in view
+                    view.setTag(position);
                     view.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-
+                            checkVisible();
+                            //При выбора стобца меням его Background, и при выборе другого возвращаем обратно
+                            //не лучшее решение
+                            count.setText(String.valueOf(mModelColumns.get((Integer) view.getTag()).getCount()));
+                            name.setText(String.valueOf(mModelColumns.get((Integer) view.getTag()).getTitle()));
+                            view.setSelected(true);
                         }
                     });
                     linearLayout.addView(view);
@@ -156,7 +162,20 @@ public class MainActivity extends AppCompatActivity {
                     LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) getResources().getDimension(R.dimen.column_width),
                             mModelColumns.get(position).getCount());
                     view.setLayoutParams(params);// set item content in view
-                    linearLayout.addView(view);
+                    view.setTag(position);
+
+                    view.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            checkVisible();
+
+                            //При выбора стобца меням его Background, и при выборе другого возвращаем обратно
+                            //не лучшее решение
+                            count.setText(String.valueOf(mModelColumns.get((Integer) view.getTag()).getCount()));
+                            name.setText(String.valueOf(mModelColumns.get((Integer) view.getTag()).getTitle()));
+                            view.setSelected(true);
+                        }
+                    });                    linearLayout.addView(view);
                 }
                 countViewLast += step;
             }
@@ -179,6 +198,18 @@ public class MainActivity extends AppCompatActivity {
                     LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) getResources().getDimension(R.dimen.column_width),
                             mModelColumns.get(position).getCount());
                     view.setLayoutParams(params);// set item content in view
+                    view.setTag(position);
+                    view.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            checkVisible();
+                            //При выбора стобца меням его Background, и при выборе другого возвращаем обратно
+                            //не лучшее решение
+                            count.setText(String.valueOf(mModelColumns.get((Integer) view.getTag()).getCount()));
+                            name.setText(String.valueOf(mModelColumns.get((Integer) view.getTag()).getTitle()));
+                            view.setSelected(true);
+                        }
+                    });
                     linearLayout.addView(view, 0);
                     Log.d("AGIMA", "getTitle() add first" + mModelColumns.get(countViewFirst).getTitle());
                 }
@@ -196,6 +227,19 @@ public class MainActivity extends AppCompatActivity {
                     LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) getResources().getDimension(R.dimen.column_width),
                             mModelColumns.get(position).getCount());
                     view.setLayoutParams(params);// set item content in view
+                    view.setTag(position);
+                    //Ужасное решение
+                    view.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            checkVisible();
+                            //При выбора стобца меням его Background, и при выборе другого возвращаем обратно
+                            //не лучшее решение
+                            count.setText(String.valueOf(mModelColumns.get((Integer) view.getTag()).getCount()));
+                            name.setText(String.valueOf(mModelColumns.get((Integer) view.getTag()).getTitle()));
+                            view.setSelected(true);
+                        }
+                    });
                     linearLayout.addView(view, 0);
                     Log.d("AGIMA", "getTitle() add first" + mModelColumns.get(countViewFirst).getTitle());
                 }
@@ -207,6 +251,30 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
+    private void getInfo(final View view){
+        if(InfoView.getVisibility() == View.GONE){
+            InfoView.setVisibility(View.VISIBLE);
+        }
+        //При выбора стобца меням его Background, и при выборе другого возвращаем обратно
+        //не лучшее решение
+        count.setText(String.valueOf(mModelColumns.get((Integer) view.getTag()).getCount()));
+        name.setText(String.valueOf(mModelColumns.get((Integer) view.getTag()).getTitle()));
+        if (selectedView != -1) {
+            view.setSelected(true);
+            selectedView = (Integer) view.getTag();
+        } else {
+
+        }
+    }
+
+    private void checkVisible(){
+        if(InfoView.getVisibility() == View.GONE){
+            InfoView.setVisibility(View.VISIBLE);
+        }
+
+    }
+
         @Override
     protected void onResume() {
         super.onResume();
@@ -275,12 +343,23 @@ public class MainActivity extends AppCompatActivity {
             super.onProgressUpdate(values);
             //В процессе(Как переиспользовать view для linearlayout без адаптера)
 
-            for (int i=0; i<END; i++){
+            for (int position=0; position<END; position++){
                 countViewLast++;
                 final View view  = inflater.inflate(R.layout.item_column, linearLayout, false);
-                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) getResources().getDimension(R.dimen.column_width), values[0].get(i).getCount());
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) getResources().getDimension(R.dimen.column_width), values[0].get(position).getCount());
                 view.setLayoutParams(params);// set item content in view
-                linearLayout.addView(view);
+                view.setTag(position);
+                view.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        checkVisible();
+                        //При выбора стобца меням его Background, и при выборе другого возвращаем обратно
+                        //не лучшее решение
+                        count.setText(String.valueOf(mModelColumns.get((Integer) view.getTag()).getCount()));
+                        name.setText(String.valueOf(mModelColumns.get((Integer) view.getTag()).getTitle()));
+                        view.setSelected(true);
+                    }
+                });linearLayout.addView(view);
             }
             createValueOfScale();
 
