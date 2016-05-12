@@ -16,10 +16,10 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.nikmc.agima.logic.LogicClass;
 import com.example.nikmc.agima.model.ExtHScrollView;
+import com.example.nikmc.agima.model.ItemChart;
 import com.example.nikmc.agima.model.ModelChart;
 
 import java.util.ArrayList;
@@ -38,6 +38,9 @@ public class MainActivity extends AppCompatActivity {
     private List<Integer> mTable;
     private List<String> mTitleTable;
     private List<ModelChart> mModelColumns = new ArrayList<>();
+    private List<ItemChart> mColumns = new ArrayList<>();
+    private int mMAX = 0;
+
     private LinearLayout InfoView;
     private LinearLayout linearLayout;
     private LayoutInflater inflater;
@@ -46,7 +49,6 @@ public class MainActivity extends AppCompatActivity {
     private View selector;
     private RelativeLayout.LayoutParams selectorparams;
     private LinearLayout main_layout;
-//    private ListView listViewColumn;
     private ExtHScrollView horizontalScrollViewColumn;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,47 +74,34 @@ public class MainActivity extends AppCompatActivity {
         inflater = LayoutInflater.from(this);
         selector = (View)findViewById(R.id.selector);
         selectorparams = new RelativeLayout.LayoutParams((int)getResources().getDimension(R.dimen.selector_width), (int)getResources().getDimension(R.dimen.selector_height));
-//        listViewColumn = (ListView) findViewById(R.id.listView);
         horizontalScrollViewColumn = (ExtHScrollView)findViewById(R.id.horizontalScrollViewColumn);
 
         CreateData data = new CreateData(this);
         data.execute();
 
-        /*horizontalScrollViewColumn.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
-            @Override
-            public void onScrollChanged() {
-                int scrollX = horizontalScrollViewColumn.getScrollX(); //for horizontalScrollView
-//                linearLayout.getC
-               // Log.d("AGIMA", "getChildCount" + linearLayout.getChildCount() );
-            
-                        Log.d("AGIMA", "scrollView" +
-                                horizontalScrollViewColumn.getX() + ", " +
-                                horizontalScrollViewColumn.getY() + ", " +
-                                horizontalScrollViewColumn.getScrollX() + ", " +
-                                        horizontalScrollViewColumn.getWidth() + ", " +
 
-                                        horizontalScrollViewColumn.getScaleX());
-
-
-
-            }
-        });*/
         horizontalScrollViewColumn.setOnScrollChanged(new ExtHScrollView.ScrollViewListener() {
             @Override
-            public void onScrollChanged(ExtHScrollView scrollView, int l, int t, int oldl, int oldt) {
+            public void onScrollChanged(final ExtHScrollView scrollView, final int l, int t, int oldl, int oldt) {
+                Log.d("AGIMA", "l = " + l + " scrollView.getExtentHorizontal()="
+                        + scrollView.getExtentHorizontal() + "l + scrollView.getExtentHorizontal()= " + scrollView.getChildWidth());
                 if (l + scrollView.getExtentHorizontal() >= scrollView
                         .getChildWidth() - ((LinearLayout)scrollView.getChildAt(0)).getChildAt(0).getWidth()) {
                     horizontalScrollViewColumn.post(new Runnable() {
                         @Override
                         public void run() {
-                            AddEnd();
+                            AddEnd(((LinearLayout) scrollView.getChildAt(0)).getChildAt(0).getWidth());
+
                         }
                     });
-                } else if (l + scrollView.getExtentHorizontal() <= scrollView.getExtentHorizontal()){
+                }
+                if (l + scrollView.getExtentHorizontal() <= scrollView.getExtentHorizontal()){
                     horizontalScrollViewColumn.post(new Runnable() {
                         @Override
                         public void run() {
-                            AddFirst();
+                            AddFirst(scrollView.getChildWidth() - ((LinearLayout)scrollView.getChildAt(0)).getChildAt(0).getWidth());
+                            Log.d("AGIMA", "l = " + l + " scrollView.getExtentHorizontal()="
+                                    + scrollView.getExtentHorizontal() + "l + scrollView.getExtentHorizontal()= " + l + scrollView.getExtentHorizontal());
                         }
                     });
                 }
@@ -121,21 +110,24 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void AddEnd() {
+    private void AddEnd(int ScrollWidth) {
         if (countViewLast < sCOUNT_TABLE) {
+            mMAX = 0;
+            horizontalScrollViewColumn.scrollTo(ScrollWidth + 20,0);
             int step = 0;
             if (countViewLast + STEP <= sCOUNT_TABLE - 1) {
                 for(int position = countViewLast; position < countViewLast + STEP; position++){
                     countViewFirst++;
                     linearLayout.removeViewAt(0);
-                    Log.d("AGIMA", "mModelColumns.get(countView).getCount()" + mModelColumns.get(position).getCount());
                     final View view = inflater.inflate(R.layout.item_column, linearLayout, false);
-                    Log.d("AGIMA", "getTitle()" + mModelColumns.get(position).getTitle());
-
+                    setMax(mModelColumns.get(position).getCount());
                     LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) getResources().getDimension(R.dimen.column_width),
                             mModelColumns.get(position).getCount());
                     view.setLayoutParams(params);// set item content in view
                     view.setTag(position);
+                    if(mColumns.get((Integer)view.getTag()).ismSelected()){
+                        view.setSelected(true);
+                    }
                     view.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -145,6 +137,14 @@ public class MainActivity extends AppCompatActivity {
                             count.setText(String.valueOf(mModelColumns.get((Integer) view.getTag()).getCount()));
                             name.setText(String.valueOf(mModelColumns.get((Integer) view.getTag()).getTitle()));
                             view.setSelected(true);
+                            //возникла проблема обновления старого view при нажатии на другой
+                            //не имею представлений, как сделать
+                            if (selectedView != -1) {
+                                mColumns.get(selectedView).setmSelected(false);
+                                selectedView = (Integer) view.getTag();
+                            } else {
+                                selectedView = (Integer) view.getTag();
+                            }
                         }
                     });
                     linearLayout.addView(view);
@@ -155,15 +155,16 @@ public class MainActivity extends AppCompatActivity {
                 for(int position = countViewLast; position < countViewLast + step; position++){
                     countViewFirst++;
                     linearLayout.removeViewAt(0);
-                    Log.d("AGIMA", "mModelColumns.get(countView).getCount()" + mModelColumns.get(position).getCount());
                     final View view = inflater.inflate(R.layout.item_column, linearLayout, false);
-                    Log.d("AGIMA", "getTitle()" + mModelColumns.get(position).getTitle());
+                    setMax(mModelColumns.get(position).getCount());
 
                     LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) getResources().getDimension(R.dimen.column_width),
                             mModelColumns.get(position).getCount());
                     view.setLayoutParams(params);// set item content in view
                     view.setTag(position);
-
+                    if(mColumns.get((Integer)view.getTag()).ismSelected()){
+                        view.setSelected(true);
+                    }
                     view.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -174,44 +175,65 @@ public class MainActivity extends AppCompatActivity {
                             count.setText(String.valueOf(mModelColumns.get((Integer) view.getTag()).getCount()));
                             name.setText(String.valueOf(mModelColumns.get((Integer) view.getTag()).getTitle()));
                             view.setSelected(true);
+                            //возникла проблема обновления старого view при нажатии на другой
+                            //не имею представлений, как сделать
+                            if(selectedView != -1){
+                                mColumns.get(selectedView).setmSelected(false);
+                                selectedView = (Integer)view.getTag();
+                            } else {
+                                selectedView = (Integer)view.getTag();
+                            }
                         }
-                    });                    linearLayout.addView(view);
+                    });
+                    linearLayout.addView(view);
                 }
                 countViewLast += step;
             }
-        } else {
-            Toast.makeText(MainActivity.this,"Nope",Toast.LENGTH_SHORT).show();
+            createValueOfScale(getMax());
         }
     }
 
-    private void AddFirst() {
+    private void AddFirst(int ScrollWidth) {
         if (countViewFirst > -1) {
+            mMAX = 0;
+            horizontalScrollViewColumn.scrollTo(ScrollWidth - 20, 0);
             int step = 0;
-            if (countViewFirst - STEP >= -1) {
+            if (countViewFirst - STEP >= 0) {
                 for (int position = countViewFirst; position > countViewFirst - STEP; position--) {
                     linearLayout.removeViewAt(linearLayout.getChildCount() - 1);
-                    Log.d("AGIMA", "mModelColumns.get(countView).getCount()" + mModelColumns.get(position).getCount());
-                    Log.d("AGIMA", "mModelColumns.get(countView).getCount()" + mModelColumns.get(position).getCount());
                     final View view = inflater.inflate(R.layout.item_column, linearLayout, false);
-                    Log.d("AGIMA", "getTitle()" + mModelColumns.get(position).getTitle());
+                    setMax(mModelColumns.get(position).getCount());
 
                     LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) getResources().getDimension(R.dimen.column_width),
                             mModelColumns.get(position).getCount());
                     view.setLayoutParams(params);// set item content in view
                     view.setTag(position);
+                    if(mColumns.get((Integer)view.getTag()).ismSelected()){
+                        view.setSelected(true);
+                    }
                     view.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             checkVisible();
                             //При выбора стобца меням его Background, и при выборе другого возвращаем обратно
-                            //не лучшее решение
+                            //не лучшее решение, на мой взгляд, но другого не придумал
                             count.setText(String.valueOf(mModelColumns.get((Integer) view.getTag()).getCount()));
                             name.setText(String.valueOf(mModelColumns.get((Integer) view.getTag()).getTitle()));
+                            mColumns.get((Integer)view.getTag()).setmSelected(true);
                             view.setSelected(true);
+                            //возникла проблема обновления старого view при нажатии на другой
+                            //не имею представлений, как сделать
+                            if(selectedView != -1){
+                                mColumns.get(selectedView).setmSelected(false);
+                                selectedView = (Integer)view.getTag();
+                            } else {
+                                selectedView = (Integer)view.getTag();
+                            }
+
                         }
                     });
                     linearLayout.addView(view, 0);
-                    Log.d("AGIMA", "getTitle() add first" + mModelColumns.get(countViewFirst).getTitle());
+
                 }
                 countViewLast -= STEP;
                 countViewFirst -= STEP;
@@ -219,52 +241,43 @@ public class MainActivity extends AppCompatActivity {
                 step = countViewFirst + 1;
                 for (int position = countViewFirst; position > -1; position--) {
                     linearLayout.removeViewAt(linearLayout.getChildCount() - 1);
-                    Log.d("AGIMA", "mModelColumns.get(countView).getCount()" + mModelColumns.get(position).getCount());
-                    Log.d("AGIMA", "mModelColumns.get(countView).getCount()" + mModelColumns.get(position).getCount());
                     final View view = inflater.inflate(R.layout.item_column, linearLayout, false);
-                    Log.d("AGIMA", "getTitle()" + mModelColumns.get(position).getTitle());
+                    setMax(mModelColumns.get(position).getCount());
 
                     LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) getResources().getDimension(R.dimen.column_width),
                             mModelColumns.get(position).getCount());
                     view.setLayoutParams(params);// set item content in view
                     view.setTag(position);
+                    if(mColumns.get((Integer)view.getTag()).ismSelected()){
+                        view.setSelected(true);
+                    }
                     //Ужасное решение
                     view.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             checkVisible();
                             //При выбора стобца меням его Background, и при выборе другого возвращаем обратно
-                            //не лучшее решение
+                            //не лучшее решение, на мой взгляд, но другого не придумал
                             count.setText(String.valueOf(mModelColumns.get((Integer) view.getTag()).getCount()));
                             name.setText(String.valueOf(mModelColumns.get((Integer) view.getTag()).getTitle()));
                             view.setSelected(true);
+                            //возникла проблема обновления старого view при нажатии на другой
+                            //не имею представлений, как сделать
+                            if(selectedView != -1){
+                                mColumns.get(selectedView).setmSelected(false);
+                                selectedView = (Integer)view.getTag();
+                            } else {
+                                selectedView = (Integer)view.getTag();
+                            }
                         }
                     });
                     linearLayout.addView(view, 0);
-                    Log.d("AGIMA", "getTitle() add first" + mModelColumns.get(countViewFirst).getTitle());
+
                 }
                 countViewLast -= step;
-                countViewLast -= step;
+                countViewFirst -= step;
             }
-        } else {
-            Toast.makeText(MainActivity.this, "Nope", Toast.LENGTH_SHORT).show();
-        }
-
-    }
-
-    private void getInfo(final View view){
-        if(InfoView.getVisibility() == View.GONE){
-            InfoView.setVisibility(View.VISIBLE);
-        }
-        //При выбора стобца меням его Background, и при выборе другого возвращаем обратно
-        //не лучшее решение
-        count.setText(String.valueOf(mModelColumns.get((Integer) view.getTag()).getCount()));
-        name.setText(String.valueOf(mModelColumns.get((Integer) view.getTag()).getTitle()));
-        if (selectedView != -1) {
-            view.setSelected(true);
-            selectedView = (Integer) view.getTag();
-        } else {
-
+            createValueOfScale(getMax());
         }
     }
 
@@ -275,11 +288,36 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void setMax(int Max){
+        if (Max > mMAX) mMAX = Max;
+    }
+
+    public int getMax(){
+        return mMAX;
+    }
+
+    private void createValueOfScale(int MAX) {
+        RelativeLayout text = (RelativeLayout)findViewById(R.id.Count);
+        text.setVisibility(View.VISIBLE);
+        text.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, MAX));
+        TextView topLabel = (TextView)findViewById(R.id.topLabel);
+        TextView centerLabel = (TextView)findViewById(R.id.centerLabel);
+        TextView bottomLabel = (TextView)findViewById(R.id.bottomLabel);
+        topLabel.setText("--" + String.valueOf(MAX-50));
+        centerLabel.setText("--" + String.valueOf(MAX / 2));
+        bottomLabel.setText("--" + String.valueOf(sMIN + 50));
+        RelativeLayout.LayoutParams labelTopparams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.WRAP_CONTENT);
+        labelTopparams.setMargins(0, sMIN + 50, 0, 0);
+        topLabel.setLayoutParams(labelTopparams);
+        RelativeLayout.LayoutParams labelBottomparams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.WRAP_CONTENT);
+        labelBottomparams.setMargins(0, MAX - 50, 0, 0);
+        bottomLabel.setLayoutParams(labelBottomparams);
+
+    }
+
         @Override
     protected void onResume() {
         super.onResume();
-
-
     }
 
     @Override
@@ -342,6 +380,7 @@ public class MainActivity extends AppCompatActivity {
         protected void onProgressUpdate(List<ModelChart>... values) {
             super.onProgressUpdate(values);
             //В процессе(Как переиспользовать view для linearlayout без адаптера)
+            mColumns.addAll(mModelColumns);
 
             for (int position=0; position<END; position++){
                 countViewLast++;
@@ -349,21 +388,30 @@ public class MainActivity extends AppCompatActivity {
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) getResources().getDimension(R.dimen.column_width), values[0].get(position).getCount());
                 view.setLayoutParams(params);// set item content in view
                 view.setTag(position);
+                if(mColumns.get((Integer)view.getTag()).ismSelected()){
+                    view.setSelected(true);
+                }
+                setMax(values[0].get(position).getCount());
                 view.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         checkVisible();
                         //При выбора стобца меням его Background, и при выборе другого возвращаем обратно
-                        //не лучшее решение
+                        //не лучшее решение, на мой взгляд, но другого не придумал
                         count.setText(String.valueOf(mModelColumns.get((Integer) view.getTag()).getCount()));
                         name.setText(String.valueOf(mModelColumns.get((Integer) view.getTag()).getTitle()));
                         view.setSelected(true);
+                        if(selectedView != -1){
+                            mColumns.get(selectedView).setmSelected(false);
+                            selectedView = (Integer)view.getTag();
+                        } else {
+                            selectedView = (Integer)view.getTag();
+                        }
                     }
-                });linearLayout.addView(view);
+                });
+                linearLayout.addView(view);
             }
-            createValueOfScale();
-
-
+            createValueOfScale(getMax());
         }
 
         @Override
@@ -375,27 +423,8 @@ public class MainActivity extends AppCompatActivity {
                 dialog.dismiss();
 
         }
-
-        private void createValueOfScale() {
-            RelativeLayout text = (RelativeLayout)findViewById(R.id.Count);
-            text.setVisibility(View.VISIBLE);
-            text.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, horizontalScrollViewColumn.getLayoutParams().height));
-            TextView topLabel = (TextView)findViewById(R.id.topLabel);
-            TextView centerLabel = (TextView)findViewById(R.id.centerLabel);
-            TextView bottomLabel = (TextView)findViewById(R.id.bottomLabel);
-            topLabel.setText("--" + String.valueOf(sMAX-50));
-            centerLabel.setText("--" + String.valueOf(sMAX / 2));
-            bottomLabel.setText("--" + String.valueOf(sMIN + 50));
-            RelativeLayout.LayoutParams labelTopparams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.WRAP_CONTENT);
-            labelTopparams.setMargins(0, sMIN + 50, 0, 0);
-            topLabel.setLayoutParams(labelTopparams);
-            RelativeLayout.LayoutParams labelBottomparams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.WRAP_CONTENT);
-            labelBottomparams.setMargins(0, sMAX - 50, 0, 0);
-            bottomLabel.setLayoutParams(labelBottomparams);
-
-        }
-
     }
+
 
 
 /*    public class CreateData extends AsyncTask<Void, ModelChart, Void>{

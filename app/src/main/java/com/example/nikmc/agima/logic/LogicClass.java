@@ -15,7 +15,6 @@ public class LogicClass {
     private static int sCOUNT_TABLE = -1;
     private final static int sMAX = 1000;
     private final static int sMIN = 0;
-
     public LogicClass(int count) {
         sCOUNT_TABLE = count;
     }
@@ -52,4 +51,6 @@ public class LogicClass {
             randomValue.add(i, random.nextInt((sMAX - sMIN) + sMIN));
         return randomValue;
     }
+
+
 }

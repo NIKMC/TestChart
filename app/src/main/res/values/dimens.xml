@@ -6,4 +6,6 @@
     <dimen name="column_width">20dp</dimen>
     <dimen name="selector_width">2dp</dimen>
     <dimen name="selector_height">10dp</dimen>
+    <dimen name="margin_scale">50dp</dimen>
+
 </resources>
